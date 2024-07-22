@@ -35,7 +35,7 @@ jobs:
     runs-on: self-hosted
     services:
       localstack:
-        image: localstack/localstack:latest
+        image: localstack/localstack:2.0
         ports:
           - 4566:4566
           - 4571:4571
