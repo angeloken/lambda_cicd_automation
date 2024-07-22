@@ -1,6 +1,6 @@
 import pytest
-from lambdas.hello_world import handler as hello_world_handler
-from lambdas.process_data import handler as process_data_handler
+from hello_world import handler as hello_world_handler
+from process_data import handler as process_data_handler
 import os
 
 def test_hello_world(monkeypatch):
