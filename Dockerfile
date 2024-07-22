@@ -14,6 +14,11 @@ RUN apt-get update && apt-get install -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
+# Create a new user
+RUN useradd -ms /bin/bash github-actions
+
+# Switch to the new user
+USER github-actions
 # Create a directory for the runner
 RUN mkdir /actions-runner
 
