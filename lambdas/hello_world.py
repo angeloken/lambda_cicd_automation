@@ -9,3 +9,4 @@ def handler(event, context):
         'statusCode': 200,
         'body': f'Connected to DB at {db_host} with user {db_user}'
     }
+
