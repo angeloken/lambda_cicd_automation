@@ -1,15 +1,14 @@
 version: '3.8'
+
 services:
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:2.0
     ports:
-      - "4566:4566"
-      - "4571:4571"
+      - '4566:4566' # LocalStack endpoint
+      - '4571:4571' # external services port range
     environment:
       - SERVICES=lambda,s3,iam
-      - DEBUG=1
-      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - "./localstack:/tmp/localstack"
-    tmpfs:
-      - /tmp/localstack:exec,mode=600
+      - ./localstack-script.sh:/etc/localstack/init/ready.d/script.sh
+      - '/var/run/docker.sock:/var/run/docker.sock'
