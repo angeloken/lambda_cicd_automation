@@ -39,6 +39,9 @@ jobs:
         ports:
           - 4566:4566
           - 4571:4571
+        env:
+          SERVICES: lambda,s3,iam
+          DOCKER_HOST: unix:///var/run/docker.sock
     steps:
       - name: checkout code
         uses: actions/checkout@v2
