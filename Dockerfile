@@ -17,11 +17,6 @@ RUN apt-get update && apt-get install -y \
 # Create a new user
 RUN useradd -ms /bin/bash github-actions
 
-# Switch to the new user
-USER github-actions
-# Create a directory for the runner
-RUN mkdir /actions-runner
-
 # Set the working directory
 WORKDIR /actions-runner
 
