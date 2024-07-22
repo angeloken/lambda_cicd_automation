@@ -1,0 +1,69 @@
+name: Lambda Ci/CD
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  lint-and-test:
+    runs-on: self-hosted
+    steps:
+      - name: checkout code
+        uses: actions/checkout
+      - name: setup python
+        uses: actions/setup-python
+        with:
+          python-version: '3.10'
+      - name: Install depedencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lambdas/requirements.txt
+      - name: Lint with flake8
+        run: |
+          flake8 lambdas/
+      - name: Run tests
+        run: |
+          pytest tests/
+  deploy:
+    needs: lint-and-test
+    runs-on: self-hosted
+    services:
+      localstack:
+        image: localstack/localstack:latest
+        ports:
+          - 4566:4566
+          - 4571:4571
+    steps:
+      - name: checkout code
+        uses: actions/checkout
+      - name: setup python
+        uses: actions/setup-python
+        with:
+          python-version: '3.10'
+      - name: install depedencies
+        runs: |
+          python -m pip install --upgrade pip
+          pip install -r lambdas/requirements.txt
+      - name: zip lambda functions
+        run: |
+          chmod +x zip_lambdas.sh
+          ./zip_lambdas.sh
+      - name: deploy lambda functions to localstack
+        env:
+          AWS_ACCESS_KEY_ID: mydummy
+          AWS_SECRET_ACCESS_KEY: mysecret
+        run: |
+          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world \
+              --runtime python3.10 --role arn:aws:iam:000000000000:role/lambda-role \
+              --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip
+          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
+              --runtime python3.10 --role arn:aws:iam:000000000000:role/lambda-role \
+              --handler process-data.handler --zip-file fileb://lambdas/process-data.zip
+          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello_world \
+              --environment Variables="{DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
+          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
+              --environment Variables="{API_KEY=myapikey, API_SECRET=myapisecret}"
