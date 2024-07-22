@@ -6,7 +6,6 @@ import os
 def test_hello_world(monkeypatch):
     monkeypatch.setenv('DB_HOST', 'test.db.host')
     monkeypatch.setenv('DB_USER', 'testuser')
-    monkeypatch.setenv('DB_PASS', 'testpass')
     
     result = hello_world_handler({}, {})
     assert result['statusCode'] == 200
