@@ -10,5 +10,4 @@ services:
       - SERVICES=lambda,s3,iam
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - ./localstack-script.sh:/etc/localstack/init/ready.d/script.sh
       - '/var/run/docker.sock:/var/run/docker.sock'
