@@ -5,6 +5,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y tzdata curl unzip python3 python3-pip awscli zip && rm -rf /var/lib/apt/lists/*
 
+RUN useradd -ms /bin/bash github-actions
+USER github-actions
+
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 RUN pip3 install localstack
@@ -19,9 +22,5 @@ RUN curl -o actions-runner-linux-x64-2.284.0.tar.gz -L https://github.com/action
 
 COPY install-runner.sh /actions-runner/install-runner.sh
 RUN chmod +x /actions-runner/install-runner.sh
-
-
-
-RUN mkdir /lambdas
 
 ENTRYPOINT ["/actions-runner/install-runner.sh"]
