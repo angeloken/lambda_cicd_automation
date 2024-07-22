@@ -26,6 +26,8 @@ jobs:
         run: |
           flake8 lambdas/
       - name: Run tests
+        env:
+          PYTHONPATH: ./lambdas
         run: |
           pytest tests/
   deploy:
