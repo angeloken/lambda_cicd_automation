@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y tzdata curl unzip python3 python3-pip a
 RUN ln -fs /usr/share/zoneinfo/$TZ /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
 
 RUN pip3 install localstack
-RUN useradd -ms /bin/bash github-actions
-USER github-actions
+
 RUN mkdir /actions-runner
 
 WORKDIR /actions-runner
