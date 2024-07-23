@@ -61,6 +61,26 @@ jobs:
           sudo ./aws/install --update
       - name: Verify AWS CLI Installation
         run: aws --version
+      - name: Create IAM Role
+        run: |
+          cat <<EOF > lambda-role-policy.json
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "lambda.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+          EOF
+          awslocal iam create-role --role-name lambda-role --assume-role-policy-document file://lambda-role-policy.json
+      - name: Attach IAM Policies
+        run: |
+          awslocal iam attach-role-policy --role-name lambda-role --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       - name: zip lambda functions
         run: |
           chmod +x zip_lambdas.sh
