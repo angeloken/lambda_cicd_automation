@@ -1,4 +1,4 @@
-name: Lambda CI/CD 1
+name: Lambda CI/CD
 on:
   push:
     branches:
@@ -128,5 +128,3 @@ jobs:
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
               --environment "Variables={API_KEY=myapikey, API_SECRET=myapisecret}"
 
-      - name: Check LocalStack Logs
-        run: docker logs localstack
