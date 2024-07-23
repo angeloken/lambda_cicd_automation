@@ -35,7 +35,7 @@ jobs:
     runs-on: self-hosted
     services:
       localstack:
-        image: localstack/localstack:3.0
+        image: localstack/localstack:latest
         ports:
           - 4566:4566
           - 4571:4571
@@ -74,16 +74,23 @@ jobs:
       - name: List directory contents
         run: |
           ls -R lambdas/
-      - name: deploy lambda functions to localstack
-        env:
-          AWS_ACCESS_KEY_ID: mydummy
-          AWS_SECRET_ACCESS_KEY: mysecret
-        run: |
-          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip
-          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
-              --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler process-data.handler --zip-file fileb://lambdas/process_data.zip
-          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello-world \
-              --environment Variables="{DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
-          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
-              --environment Variables="{API_KEY=myapikey, API_SECRET=myapisecret}"
+      - name: Create hello-world function
+  env:
+    AWS_ACCESS_KEY_ID: mydummy
+    AWS_SECRET_ACCESS_KEY: mysecret
+  run: |
+    aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world \
+      --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
+      --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip || true
+
+- name: Wait for Lambda to be ready
+  run: sleep 10
+
+- name: Configure hello-world function environment variables
+  env:
+    AWS_ACCESS_KEY_ID: mydummy
+    AWS_SECRET_ACCESS_KEY: mysecret
+  run: |
+    aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello-world \
+        --environment "Variables={DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
+
