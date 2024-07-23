@@ -54,6 +54,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r lambdas/requirements.txt
           pip install awscli --upgrade --user
+          echo 'export PATH=$PATH:$HOME/.local/bin' >> $GITHUB_ENV
           sudo apt-get install -y zip
       - name: zip lambda functions
         run: |
