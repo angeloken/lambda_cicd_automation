@@ -21,11 +21,12 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     software-properties-common \
     gnupg2 \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
 
-
-RUN useradd -ms /bin/bash github-actions
+RUN groupadd docker || true && useradd -m -g docker runner && usermod -aG docker runner
+USER runner
 
 # Set the working directory
 WORKDIR /actions-runner
@@ -38,7 +39,7 @@ RUN curl -o actions-runner-linux-x64-2.303.0.tar.gz -L https://github.com/action
 COPY install-runner.sh /actions-runner/install-runner.sh
 
 # Make the script executable
-RUN chmod +x /actions-runner/install-runner.sh
+#RUN chmod +x /actions-runner/install-runner.sh
 
 # Set the entrypoint
 ENTRYPOINT ["/actions-runner/install-runner.sh"]
