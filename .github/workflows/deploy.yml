@@ -39,6 +39,8 @@ jobs:
         ports:
           - 4566:4566
           - 4571:4571
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
         env:
           SERVICES: lambda,s3,iam
           DOCKER_HOST: unix:///var/run/docker.sock
