@@ -61,6 +61,13 @@ jobs:
           sudo ./aws/install
       - name: Verify AWS CLI Installation
         run: aws --version
+      - name: Create IAM role
+        env:
+          AWS_ACCESS_KEY_ID: mydummy
+          AWS_SECRET_ACCESS_KEY: mysecret
+        run: |
+          aws --endpoint-url=http://localhost:4566 iam create-role --role-name lambda-role \
+            --assume-role-policy-document file://assume-role-policy.json || true
       - name: zip lambda functions
         run: |
           chmod +x zip_lambdas.sh
