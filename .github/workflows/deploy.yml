@@ -71,6 +71,9 @@ jobs:
         run: |
           chmod +x zip_lambdas.sh
           ./zip_lambdas.sh
+      - name: List directory contents
+        run: |
+          ls -R lambdas/
       - name: deploy lambda functions to localstack
         env:
           AWS_ACCESS_KEY_ID: mydummy
@@ -79,7 +82,7 @@ jobs:
           aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip
           aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler process-data.handler --zip-file fileb://lambdas/process-data.zip
+              --handler process-data.handler --zip-file fileb://lambdas/process_data.zip
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello_world \
               --environment Variables="{DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
