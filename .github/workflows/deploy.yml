@@ -81,9 +81,9 @@ jobs:
         run: |
           aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler hello_world.handler --zip-file fileb://lambdas/zipped/hello_world.zip || \
+              --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip || \
           aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name hello-world \
-              --zip-file fileb://lambdas/zipped/hello_world.zip
+              --zip-file fileb://lambdas/hello_world.zip
 
       - name: Configure hello-world function environment variables
         env:
@@ -100,9 +100,9 @@ jobs:
         run: |
           aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler process_data.handler --zip-file fileb://lambdas/zipped/process_data.zip || \
+              --handler process_data.handler --zip-file fileb://lambdas/process_data.zip || \
           aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name process-data \
-              --zip-file fileb://lambdas/zipped/process_data.zip
+              --zip-file fileb://lambdas/process_data.zip
 
       - name: Configure process-data function environment variables
         env:
