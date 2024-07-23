@@ -1,4 +1,4 @@
-name: Lambda CI/CD deploy
+name: Lambda CI/CD
 on:
   push:
     branches:
