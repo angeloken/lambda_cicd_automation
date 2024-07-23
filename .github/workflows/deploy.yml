@@ -57,7 +57,7 @@ jobs:
       - name: install AWS CLI
         run: |
           pip install awscli --upgrade --user
-          echo 'export PATH=$PATH:$HOME/.local/bin' >> $GITHUB_ENV
+          echo 'PATH=$HOME/.local/bin:\$PATH' >> $GITHUB_ENV
       - name: Verify AWS CLI Installation
         run: aws --version
       - name: zip lambda functions
