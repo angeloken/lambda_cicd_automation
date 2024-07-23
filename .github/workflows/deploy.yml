@@ -81,7 +81,7 @@ jobs:
           else
             aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name hello-world \
               --zip-file fileb://lambdas/hello_world.zip || true
-            sleep 10
+            sleep 30
             aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello-world \
               --environment "Variables={DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
           fi
@@ -99,7 +99,7 @@ jobs:
           else
             aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name process-data \
               --zip-file fileb://lambdas/process_data.zip || true
-            sleep 10
+            sleep 30
             aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
               --environment "Variables={API_KEY=myapikey, API_SECRET=myapisecret}"
           fi
