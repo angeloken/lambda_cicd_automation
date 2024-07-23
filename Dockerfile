@@ -12,10 +12,37 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     awscli \
     zip \
+    curl \
+    sudo \
+    git \
+    iptables \
+    ca-certificates \
+    lsb-release \
+    apt-transport-https \
+    software-properties-common \
+    gnupg2 \
     && rm -rf /var/lib/apt/lists/*
 
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+
+# Create a Docker group and add the user
+RUN groupadd -f docker
+RUN useradd -m runner && usermod -aG docker runner
 # Create a new user
 RUN useradd -ms /bin/bash github-actions
+
+# Install Docker
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+RUN add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
 
 # Set the working directory
 WORKDIR /actions-runner
