@@ -49,11 +49,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.10' 
-      - name: install dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r lambdas/requirements.txt
-          sudo apt-get install -y zip
+          sudo apt-get install -y zip libpython3.10
       - name: install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -75,13 +75,17 @@ jobs:
         run: |
           FUNCTION_EXISTS=$(aws --endpoint-url=http://localhost:4566 lambda list-functions | grep hello-world || true)
           if [ -z "$FUNCTION_EXISTS" ]; then
+            echo "Creating hello-world function"
             aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip
+              --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip \
+              --timeout 60
           else
+            echo "Updating hello-world function code"
             aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name hello-world \
               --zip-file fileb://lambdas/hello_world.zip || true
           fi
+          aws --endpoint-url=http://localhost:4566 lambda get-function --function-name hello-world
 
       - name: Create or Update process-data function
         env:
@@ -90,19 +94,24 @@ jobs:
         run: |
           FUNCTION_EXISTS=$(aws --endpoint-url=http://localhost:4566 lambda list-functions | grep process-data || true)
           if [ -z "$FUNCTION_EXISTS" ]; then
+            echo "Creating process-data function"
             aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
-              --handler process_data.handler --zip-file fileb://lambdas/process_data.zip
+              --handler process_data.handler --zip-file fileb://lambdas/process_data.zip \
+              --timeout 60
           else
+            echo "Updating process-data function code"
             aws --endpoint-url=http://localhost:4566 lambda update-function-code --function-name process-data \
               --zip-file fileb://lambdas/process_data.zip || true
           fi
+          aws --endpoint-url=http://localhost:4566 lambda get-function --function-name process-data
 
       - name: Update hello-world environment variables
         env:
           AWS_ACCESS_KEY_ID: mydummy
           AWS_SECRET_ACCESS_KEY: mysecret
         run: |
+          echo "Updating hello-world environment variables"
           sleep 30
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello-world \
               --environment "Variables={DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
@@ -112,6 +121,10 @@ jobs:
           AWS_ACCESS_KEY_ID: mydummy
           AWS_SECRET_ACCESS_KEY: mysecret
         run: |
+          echo "Updating process-data environment variables"
           sleep 30
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
               --environment "Variables={API_KEY=myapikey, API_SECRET=myapisecret}"
+
+      - name: Check LocalStack Logs
+        run: docker logs localstack
