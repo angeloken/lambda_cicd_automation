@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
 
 
 
-RUN useradd -ms /bin/bash github-actions && usermod -aG docker github-actions
+RUN useradd -ms /bin/bash github-actions
 
 # Set the working directory
 WORKDIR /actions-runner
