@@ -1,4 +1,4 @@
-name: Lambda CI/CD
+name: Lambda CI/CD 1
 on:
   push:
     branches:
