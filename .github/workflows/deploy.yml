@@ -1,15 +1,74 @@
-name: Verify Docker
-on: [push]
-
+name: Lambda Ci/CD
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 jobs:
-  verify-docker:
+  lint-and-test:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v2
-
-      - name: Verify Docker Installation
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          docker --version
-          docker info
-          docker run hello-world
+          python -m pip install --upgrade pip
+          pip install -r lambdas/requirements.txt
+      - name: Lint with flake8
+        run: |
+          flake8 lambdas/
+      - name: Run tests
+        env:
+          PYTHONPATH: ./lambdas
+        run: |
+          pytest tests/
+  deploy:
+    needs: lint-and-test
+    runs-on: self-hosted
+    services:
+      localstack:
+        image: localstack/localstack:2.0
+        ports:
+          - 4566:4566
+          - 4571:4571
+        env:
+          SERVICES: lambda,s3,iam
+          DOCKER_HOST: unix:///var/run/docker.sock
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v2
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r lambdas/requirements.txt
+      - name: zip lambda functions
+        run: |
+          chmod +x zip_lambdas.sh
+          ./zip_lambdas.sh
+      - name: deploy lambda functions to localstack
+        env:
+          AWS_ACCESS_KEY_ID: mydummy
+          AWS_SECRET_ACCESS_KEY: mysecret
+        run: |
+          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name hello-world \
+              --runtime python3.10 --role arn:aws:iam:000000000000:role/lambda-role \
+              --handler hello_world.handler --zip-file fileb://lambdas/hello_world.zip
+          aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
+              --runtime python3.10 --role arn:aws:iam:000000000000:role/lambda-role \
+              --handler process-data.handler --zip-file fileb://lambdas/process-data.zip
+          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello_world \
+              --environment Variables="{DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
+          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
+              --environment Variables="{API_KEY=myapikey, API_SECRET=myapisecret}"
