@@ -83,7 +83,7 @@ jobs:
           aws --endpoint-url=http://localhost:4566 lambda create-function --function-name process-data \
               --runtime python3.10 --role arn:aws:iam::000000000000:role/lambda-role \
               --handler process-data.handler --zip-file fileb://lambdas/process_data.zip
-          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello_world \
+          aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name hello-world \
               --environment Variables="{DB_HOST=db.example.com, DB_USER=myuser, DB_PASS=mypass}"
           aws --endpoint-url=http://localhost:4566 lambda update-function-configuration --function-name process-data \
               --environment Variables="{API_KEY=myapikey, API_SECRET=myapisecret}"
